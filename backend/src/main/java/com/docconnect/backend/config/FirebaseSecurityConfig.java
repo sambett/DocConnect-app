@@ -17,12 +17,12 @@ import java.util.Arrays;
 
 @Configuration
 @EnableWebSecurity
-public class SecurityConfig {
+public class FirebaseSecurityConfig {
 
     @Autowired
     private FirebaseAuthenticationFilter firebaseAuthenticationFilter;
 
-    @Bean
+    @Bean(name = "firebaseSecurityFilterChain")
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
             .csrf(csrf -> csrf.disable())
@@ -40,7 +40,7 @@ public class SecurityConfig {
         return http.build();
     }
     
-    @Bean
+    @Bean(name = "firebaseCorsConfigurationSource")
     CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
         configuration.setAllowedOrigins(Arrays.asList("http://localhost:4200")); // Angular default port
