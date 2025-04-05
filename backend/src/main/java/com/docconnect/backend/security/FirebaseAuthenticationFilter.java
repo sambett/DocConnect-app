@@ -1,30 +1,35 @@
 package com.docconnect.backend.security;
 
-import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.FirebaseAuthException;
-import com.google.firebase.auth.FirebaseToken;
+import com.docconnect.backend.service.FirebaseAuthService;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
+import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
-import java.util.ArrayList;
+import java.util.Collections;
 
+@Component
 public class FirebaseAuthenticationFilter extends OncePerRequestFilter {
 
-    private final FirebaseAuth firebaseAuth;
-    private final UserDetailsService userDetailsService;
-
-    public FirebaseAuthenticationFilter(FirebaseAuth firebaseAuth, UserDetailsService userDetailsService) {
-        this.firebaseAuth = firebaseAuth;
-        this.userDetailsService = userDetailsService;
-    }
+    private static final Logger logger = LoggerFactory.getLogger(FirebaseAuthenticationFilter.class);
+    
+    @Autowired
+    private FirebaseAuthService firebaseAuthService;
+    
+    @Value("${firebase.enabled:false}")
+    private boolean firebaseEnabled;
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
@@ -32,27 +37,21 @@ public class FirebaseAuthenticationFilter extends OncePerRequestFilter {
         
         String authorizationHeader = request.getHeader("Authorization");
         
-        if (authorizationHeader != null && authorizationHeader.startsWith("Bearer ")) {
-            String idToken = authorizationHeader.substring(7);
-            
-            try {
-                FirebaseToken decodedToken = firebaseAuth.verifyIdToken(idToken);
-                String uid = decodedToken.getUid();
+        try {
+            if (authorizationHeader != null && authorizationHeader.startsWith("Bearer ")) {
+                String idToken = authorizationHeader.substring(7);
+                String uid = firebaseAuthService.verifyToken(idToken);
                 
-                // In a real implementation, you would load user details from your database
-                // using the Firebase UID as a reference
-                // UserDetails userDetails = userDetailsService.loadUserByUsername(uid);
-                
-                // For now, we're creating a simple authentication token
+                // Set authentication in Spring Security context
                 UsernamePasswordAuthenticationToken authentication = 
-                    new UsernamePasswordAuthenticationToken(uid, null, new ArrayList<>());
-                    
+                    new UsernamePasswordAuthenticationToken(uid, null, Collections.emptyList());
+                authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
                 SecurityContextHolder.getContext().setAuthentication(authentication);
                 
-            } catch (FirebaseAuthException e) {
-                // Log error and continue with unauthenticated request
-                logger.error("Firebase Authentication failed", e);
+                logger.info("Successfully authenticated user ID: {}", uid);
             }
+        } catch (Exception e) {
+            logger.error("Could not set user authentication", e);
         }
         
         filterChain.doFilter(request, response);
