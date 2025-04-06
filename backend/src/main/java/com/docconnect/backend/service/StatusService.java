@@ -25,7 +25,8 @@ public class StatusService {
         Professor professor = professorRepository.findById(professorId)
                 .orElseThrow(() -> new IllegalArgumentException("Professor not found"));
         
-        return statusHistoryRepository.findFirstByProfessorOrderByTimestampDesc(professor);
+        return statusHistoryRepository.findFirstByProfessorOrderByTimestampDesc(professor)
+                .orElse(null);
     }
 
     public List<StatusHistory> getStatusHistoryByProfessorId(Long professorId) {

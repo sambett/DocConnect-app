@@ -32,16 +32,17 @@ public class NotificationService {
                 .orElseThrow(() -> new IllegalArgumentException("Professor not found"));
         
         // Check if the professor is already available
-        StatusHistory currentStatus = statusHistoryRepository.findFirstByProfessorOrderByTimestampDesc(professor);
+        StatusHistory currentStatus = statusHistoryRepository.findFirstByProfessorOrderByTimestampDesc(professor)
+                .orElse(null);
         if (currentStatus != null && currentStatus.getStatus() == StatusHistory.Status.AVAILABLE) {
             throw new IllegalArgumentException("Professor is already available");
         }
         
         // Check if a notification already exists
-        Optional<Notification> existingNotification = notificationRepository
+        List<Notification> existingNotifications = notificationRepository
                 .findByStudentAndProfessorAndNotifiedFalse(student, professor);
         
-        if (existingNotification.isPresent()) {
+        if (!existingNotifications.isEmpty()) {
             throw new IllegalArgumentException("Notification already set for this professor");
         }
         
@@ -72,9 +73,11 @@ public class NotificationService {
         Professor professor = professorRepository.findById(professorId)
                 .orElseThrow(() -> new IllegalArgumentException("Professor not found"));
         
-        Optional<Notification> notification = notificationRepository
+        List<Notification> notifications = notificationRepository
                 .findByStudentAndProfessorAndNotifiedFalse(student, professor);
         
-        notification.ifPresent(notificationRepository::delete);
+        if (!notifications.isEmpty()) {
+            notificationRepository.delete(notifications.get(0));
+        }
     }
 }
