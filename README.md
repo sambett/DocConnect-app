@@ -1,129 +1,102 @@
 # DocConnect
 
-DocConnect is a real-time professor availability tracking application that helps students and professors connect more efficiently.
+Real-time professor availability tracking application with student notifications.
 
-## Project Structure
+## Project Overview
 
-The project is divided into two main parts:
-
-1. **Backend** - Spring Boot application with MySQL database
-2. **Frontend** - Angular application with Tailwind CSS
+DocConnect is a web application that allows students to track professor availability in real-time and receive notifications when professors become available. The application is built using Angular for the frontend and Spring Boot for the backend.
 
 ## Features
 
-- Role-based authentication (Student/Professor) using Firebase Auth
-- Real-time professor status updates (Available, Busy, Away, In Meeting)
-- Student notification system when professors become available
-- Favoriting professors for quick access
-- Searching and filtering professors
-- Asking questions to professors
-- Managing announcements
+- User Authentication with JWT tokens
+- Professor Dashboard with status management
+- Student Dashboard with professor search and filtering
+- Real-time status updates
+- User roles (Students and Professors)
+- Responsive design
 
-## Technology Stack
+## Prerequisites
 
-### Backend
-- Java 21
-- Spring Boot 3.2.3
-- Spring Security
-- Spring Data JPA
-- MySQL Database
-- Firebase Admin SDK for authentication
-- Maven for dependency management
-
-### Frontend
-- Angular 17
-- Tailwind CSS
-- Firebase Authentication
-- RxJS for reactive programming
+- Java 17 or higher
+- Node.js and npm
+- MySQL server
 
 ## Setup Instructions
 
 ### Backend Setup
 
-1. Navigate to the backend directory:
+1. Open a terminal and navigate to the backend directory:
    ```
-   cd backend
+   cd C:/Users/SelmaB/Desktop/DocConnect/backend
    ```
 
-2. Build the project:
+2. Build the project using Maven:
    ```
    mvn clean install
    ```
 
-3. Run the application:
+3. Run the Spring Boot application:
    ```
    mvn spring-boot:run
    ```
 
-The backend will start on port 8080.
-
 ### Frontend Setup
 
-1. Navigate to the frontend directory:
+1. Open a new terminal and navigate to the frontend directory:
    ```
-   cd frontend/docconnect-ui
+   cd C:/Users/SelmaB/Desktop/DocConnect/frontend/docconnect-app
    ```
 
-2. Install dependencies:
+2. Install the required npm packages:
    ```
    npm install
    ```
 
-3. Run the development server:
+3. Start the Angular development server:
    ```
    npm start
    ```
 
-The Angular application will start on port 4200. Access it at http://localhost:4200.
+4. Access the application at [http://localhost:4200](http://localhost:4200)
 
-## Database Configuration
+## Application Structure
 
-The application uses MySQL. You can update the database connection details in the `application.properties` file:
+### Backend (Spring Boot)
 
-```
-spring.datasource.url=jdbc:mysql://localhost:3306/docconnect
-spring.datasource.username=root
-spring.datasource.password=
-```
+- Controllers: Handle HTTP requests
+- Services: Contain business logic
+- Models: Define data structures
+- Repositories: Interface with the database
 
-## Firebase Authentication Setup
+### Frontend (Angular)
 
-1. Create a Firebase project at https://firebase.google.com/
-2. Enable Email/Password authentication
-3. Get your Firebase configuration and update:
-   - Backend: `firebase-service-account.json` file in resources folder
-   - Frontend: `environment.ts` and `environment.development.ts` files
+- Components: UI elements and views
+- Services: Data communication and business logic
+- Models: Data type definitions
+- Guards: Route protection
 
-## API Endpoints
+## Authentication System
 
-### Authentication
-- POST /api/auth/register - Register a new user
-- POST /api/auth/verify-token - Verify Firebase token
+DocConnect uses a JWT-based authentication system:
 
-### Professors
-- GET /api/professors - Get all professors
-- GET /api/professors/{id} - Get professor by ID
-- GET /api/professors/{id}/status - Get professor's current status
-- POST /api/professors/{id}/status - Update professor's status
-- GET /api/professors/{id}/waiting-students - Get count of waiting students
+1. User registers or logs in with email and password
+2. Backend validates credentials and generates a JWT token
+3. Frontend stores the token and includes it in subsequent requests
+4. Token is validated on each request to protect routes
 
-### Students
-- GET /api/students/{id}/notifications - Get student's notifications
-- POST /api/students/{id}/notifications/{professorId} - Create notification
-- DELETE /api/students/{id}/notifications/{professorId} - Cancel notification
-- GET /api/students/{id}/favorites - Get student's favorite professors
-- POST /api/students/{id}/favorites/{professorId} - Add professor to favorites
-- DELETE /api/students/{id}/favorites/{professorId} - Remove professor from favorites
+## Database
 
-## Deployment
+The application uses MySQL for data storage with the following tables:
 
-### Backend
-The Spring Boot application can be deployed as a JAR file on any Java-compatible server.
+- Users: Basic user information and authentication
+- Professors: Additional professor-specific information
+- StatusHistory: Professor status changes over time
+- Announcements: Professor announcements
+- Favorites: Student's favorite professors
+- Notifications: Student notification preferences
 
-### Frontend
-The Angular application can be built for production with:
-```
-npm run build
-```
+## Contact
 
-The build artifacts will be stored in the `dist/` directory, which can be deployed to any web server.
+For support or questions, please contact the development team.
+
+Happy coding!

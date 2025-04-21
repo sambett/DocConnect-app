@@ -1,31 +1,35 @@
 package com.docconnect.backend.controller;
 
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
 import java.util.HashMap;
 import java.util.Map;
 
 @RestController
 @RequestMapping("/test")
-@CrossOrigin(origins = "*") // Allow requests from any origin for testing
 public class TestController {
 
     @GetMapping("/ping")
-    public ResponseEntity<Map<String, Object>> ping() {
+    public ResponseEntity<?> ping() {
         Map<String, Object> response = new HashMap<>();
         response.put("status", "success");
-        response.put("message", "Backend is running!");
+        response.put("message", "API is up and running");
         response.put("timestamp", System.currentTimeMillis());
-        response.put("version", "1.0.0");
+        
         return ResponseEntity.ok(response);
     }
     
-    @PostMapping("/echo")
-    public ResponseEntity<Map<String, Object>> echo(@RequestBody(required = false) Map<String, Object> request) {
+    @GetMapping("/config")
+    public ResponseEntity<?> config() {
         Map<String, Object> response = new HashMap<>();
-        response.put("status", "success");
-        response.put("received", request != null ? request : "No body provided");
-        response.put("timestamp", System.currentTimeMillis());
+        response.put("applicationName", "DocConnect");
+        response.put("apiVersion", "1.0");
+        response.put("serverTime", System.currentTimeMillis());
+        response.put("contextPath", "/api");
+        
         return ResponseEntity.ok(response);
     }
 }

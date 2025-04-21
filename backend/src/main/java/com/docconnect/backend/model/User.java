@@ -6,6 +6,10 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import java.time.LocalDateTime;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.docconnect.backend.config.RoleDeserializer;
+
 @Entity
 @Table(name = "users")
 @Data
@@ -23,10 +27,12 @@ public class User {
     @Column(nullable = false, unique = true)
     private String email;
     
-    private String passwordHash;
+    @Column(nullable = false)
+    private String passwordHash; // Hashed password for authentication
     
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
+    @JsonDeserialize(using = RoleDeserializer.class)
     private Role role;
     
     @Column(nullable = false)
