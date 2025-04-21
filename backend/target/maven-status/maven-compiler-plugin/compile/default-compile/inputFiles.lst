@@ -4,6 +4,7 @@ C:\Users\SelmaB\Desktop\DocConnect\backend\src\main\java\com\docconnect\backend\
 C:\Users\SelmaB\Desktop\DocConnect\backend\src\main\java\com\docconnect\backend\config\StartupConfigChecker.java
 C:\Users\SelmaB\Desktop\DocConnect\backend\src\main\java\com\docconnect\backend\controller\AuthTestController.java
 C:\Users\SelmaB\Desktop\DocConnect\backend\src\main\java\com\docconnect\backend\model\Notification.java
+C:\Users\SelmaB\Desktop\DocConnect\backend\src\main\java\com\docconnect\backend\controller\AnnouncementController.java
 C:\Users\SelmaB\Desktop\DocConnect\backend\src\main\java\com\docconnect\backend\controller\AuthController.java
 C:\Users\SelmaB\Desktop\DocConnect\backend\src\main\java\com\docconnect\backend\security\JwtAuthenticationFilter.java
 C:\Users\SelmaB\Desktop\DocConnect\backend\src\main\java\com\docconnect\backend\controller\TestController.java
@@ -14,6 +15,7 @@ C:\Users\SelmaB\Desktop\DocConnect\backend\src\main\java\com\docconnect\backend\
 C:\Users\SelmaB\Desktop\DocConnect\backend\src\main\java\com\docconnect\backend\service\AuthenticationService.java
 C:\Users\SelmaB\Desktop\DocConnect\backend\src\main\java\com\docconnect\backend\controller\HomeController.java
 C:\Users\SelmaB\Desktop\DocConnect\backend\src\main\java\com\docconnect\backend\config\RoleDeserializer.java
+C:\Users\SelmaB\Desktop\DocConnect\backend\src\main\java\com\docconnect\backend\controller\NotificationController.java
 C:\Users\SelmaB\Desktop\DocConnect\backend\src\main\java\com\docconnect\backend\security\SecurityConfig.java
 C:\Users\SelmaB\Desktop\DocConnect\backend\src\main\java\com\docconnect\backend\model\enums\UserRole.java
 C:\Users\SelmaB\Desktop\DocConnect\backend\src\main\java\com\docconnect\backend\controller\ProfessorController.java
@@ -31,6 +33,7 @@ C:\Users\SelmaB\Desktop\DocConnect\backend\src\main\java\com\docconnect\backend\
 C:\Users\SelmaB\Desktop\DocConnect\backend\src\main\java\com\docconnect\backend\repository\AnnouncementRepository.java
 C:\Users\SelmaB\Desktop\DocConnect\backend\src\main\java\com\docconnect\backend\service\FavoriteService.java
 C:\Users\SelmaB\Desktop\DocConnect\backend\src\main\java\com\docconnect\backend\service\AnnouncementService.java
+C:\Users\SelmaB\Desktop\DocConnect\backend\src\main\java\com\docconnect\backend\controller\FavoriteController.java
 C:\Users\SelmaB\Desktop\DocConnect\backend\src\main\java\com\docconnect\backend\service\NotificationService.java
 C:\Users\SelmaB\Desktop\DocConnect\backend\src\main\java\com\docconnect\backend\repository\FavoriteRepository.java
 C:\Users\SelmaB\Desktop\DocConnect\backend\src\main\java\com\docconnect\backend\repository\NotificationRepository.java

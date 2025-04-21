@@ -2,49 +2,28 @@ package com.docconnect.backend.service;
 
 import com.docconnect.backend.model.Notification;
 import com.docconnect.backend.model.Professor;
-import com.docconnect.backend.model.StatusHistory;
 import com.docconnect.backend.model.User;
 import com.docconnect.backend.model.enums.Status;
 import com.docconnect.backend.repository.NotificationRepository;
-import com.docconnect.backend.repository.ProfessorRepository;
-import com.docconnect.backend.repository.StatusHistoryRepository;
-import com.docconnect.backend.repository.UserRepository;
-import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Optional;
 
 @Service
-@RequiredArgsConstructor
 public class NotificationService {
 
     private final NotificationRepository notificationRepository;
-    private final UserRepository userRepository;
-    private final ProfessorRepository professorRepository;
-    private final StatusHistoryRepository statusHistoryRepository;
 
-    public Notification createNotification(Long studentId, Long professorId) {
-        User student = userRepository.findById(studentId)
-                .orElseThrow(() -> new IllegalArgumentException("Student not found"));
-        
-        Professor professor = professorRepository.findById(professorId)
-                .orElseThrow(() -> new IllegalArgumentException("Professor not found"));
-        
-        // Check if the professor is already available
-        StatusHistory currentStatus = statusHistoryRepository.findFirstByProfessorOrderByTimestampDesc(professor)
-                .orElse(null);
-        if (currentStatus != null && currentStatus.getStatus() == Status.AVAILABLE) {
+    public NotificationService(NotificationRepository notificationRepository) {
+        this.notificationRepository = notificationRepository;
+    }
+
+    public Notification createNotification(User student, Professor professor) {
+        // Check if professor is already available
+        if (Status.AVAILABLE.name().equals(professor.getStatus())) {
             throw new IllegalArgumentException("Professor is already available");
-        }
-        
-        // Check if a notification already exists
-        List<Notification> existingNotifications = notificationRepository
-                .findByStudentAndProfessorAndNotifiedFalse(student, professor);
-        
-        if (!existingNotifications.isEmpty()) {
-            throw new IllegalArgumentException("Notification already set for this professor");
         }
         
         Notification notification = new Notification();
@@ -55,30 +34,35 @@ public class NotificationService {
         
         return notificationRepository.save(notification);
     }
-
-    public List<Notification> getNotificationsForStudent(Long studentId) {
-        User student = userRepository.findById(studentId)
-                .orElseThrow(() -> new IllegalArgumentException("Student not found"));
-        
-        return notificationRepository.findByStudentAndNotifiedFalse(student);
+    
+    public boolean notificationExists(User student, Professor professor) {
+        return notificationRepository.existsByStudentAndProfessorAndNotifiedFalse(student, professor);
     }
-
-    public void deleteNotification(Long notificationId) {
-        notificationRepository.deleteById(notificationId);
+    
+    public int getWaitingStudentsCount(Professor professor) {
+        return notificationRepository.countByProfessorAndNotifiedFalse(professor);
     }
-
-    public void cancelNotification(Long studentId, Long professorId) {
-        User student = userRepository.findById(studentId)
-                .orElseThrow(() -> new IllegalArgumentException("Student not found"));
-        
-        Professor professor = professorRepository.findById(professorId)
-                .orElseThrow(() -> new IllegalArgumentException("Professor not found"));
-        
-        List<Notification> notifications = notificationRepository
-                .findByStudentAndProfessorAndNotifiedFalse(student, professor);
-        
-        if (!notifications.isEmpty()) {
-            notificationRepository.delete(notifications.get(0));
+    
+    public List<Notification> getNotificationsByStudent(User student) {
+        return notificationRepository.findByStudentOrderByNotificationSetAtDesc(student);
+    }
+    
+    public void deleteNotification(Long id) {
+        if (!notificationRepository.existsById(id)) {
+            throw new IllegalArgumentException("Notification not found");
         }
+        notificationRepository.deleteById(id);
+    }
+    
+    @Transactional
+    public int markAllAsNotified(Professor professor) {
+        List<Notification> notifications = notificationRepository.findByProfessorAndNotifiedFalse(professor);
+        
+        for (Notification notification : notifications) {
+            notification.setNotified(true);
+        }
+        
+        notificationRepository.saveAll(notifications);
+        return notifications.size();
     }
 }

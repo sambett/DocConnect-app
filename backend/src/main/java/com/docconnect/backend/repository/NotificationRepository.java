@@ -11,12 +11,13 @@ import java.util.Optional;
 
 @Repository
 public interface NotificationRepository extends JpaRepository<Notification, Long> {
-    List<Notification> findByStudentId(Long studentId);
-    List<Notification> findByProfessorId(Long professorId);
-    Optional<Notification> findByStudentIdAndProfessorId(Long studentId, Long professorId);
-    List<Notification> findByProfessorIdAndNotified(Long professorId, boolean notified);
     List<Notification> findByProfessorAndNotifiedFalse(Professor professor);
-    List<Notification> findByStudentAndNotifiedFalse(User student);
-    List<Notification> findByStudentAndProfessorAndNotifiedFalse(User student, Professor professor);
+    List<Notification> findByStudentOrderByNotificationSetAtDesc(User student);
     int countByProfessorAndNotifiedFalse(Professor professor);
+    boolean existsByStudentAndProfessorAndNotifiedFalse(User student, Professor professor);
+    
+    // Added methods to match those used in StudentController
+    List<Notification> findByStudentId(Long studentId);
+    Optional<Notification> findByStudentIdAndProfessorId(Long studentId, Long professorId);
 }
+
