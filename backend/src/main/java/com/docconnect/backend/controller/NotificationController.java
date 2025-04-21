@@ -37,7 +37,10 @@ public class NotificationController {
         Long studentId = notificationData.get("studentId");
         Long professorId = notificationData.get("professorId");
         
+        logger.info("Received notification creation request: {}", notificationData);
+        
         if (studentId == null || professorId == null) {
+            logger.error("Missing required fields: studentId={}, professorId={}", studentId, professorId);
             return ResponseEntity.badRequest().body(Map.of("error", "Student ID and Professor ID are required"));
         }
         
@@ -45,20 +48,31 @@ public class NotificationController {
         
         try {
             User student = userService.getUserById(studentId);
+            logger.info("Found student: {}", student.getId());
+            
             Professor professor = professorService.getProfessorById(professorId);
+            logger.info("Found professor: {}", professor.getId());
             
             // Check if notification already exists
-            if (notificationService.notificationExists(student, professor)) {
+            boolean exists = notificationService.notificationExists(student, professor);
+            logger.info("Notification already exists for student and professor: {}", exists);
+            
+            if (exists) {
                 return ResponseEntity.badRequest().body(Map.of(
                     "error", "Notification already exists for this student and professor"
                 ));
             }
             
+            logger.info("Creating new notification");
             Notification notification = notificationService.createNotification(student, professor);
+            logger.info("Created notification with ID: {}", notification.getId());
             return ResponseEntity.ok(notification);
         } catch (IllegalArgumentException e) {
             logger.error("Error creating notification: {}", e.getMessage());
             return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
+        } catch (Exception e) {
+            logger.error("Unexpected error creating notification: {}", e.getMessage(), e);
+            return ResponseEntity.badRequest().body(Map.of("error", "Unexpected error: " + e.getMessage()));
         }
     }
     

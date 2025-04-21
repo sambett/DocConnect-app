@@ -19,6 +19,7 @@ public class Announcement {
     
     @ManyToOne
     @JoinColumn(name = "professor_id", nullable = false)
+    @com.fasterxml.jackson.annotation.JsonBackReference
     private Professor professor;
     
     @Column(nullable = false, columnDefinition = "TEXT")

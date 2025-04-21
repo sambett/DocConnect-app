@@ -2,6 +2,7 @@ package com.docconnect.backend.config;
 
 import com.docconnect.backend.model.User.Role;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.databind.module.SimpleModule;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -24,6 +25,9 @@ public class JacksonConfig {
         
         // Register the module with the ObjectMapper
         objectMapper.registerModule(module);
+        
+        // Configure to prevent circular reference issues
+        objectMapper.configure(SerializationFeature.FAIL_ON_EMPTY_BEANS, false);
         
         return objectMapper;
     }

@@ -44,7 +44,10 @@ public class AnnouncementController {
     public ResponseEntity<?> createAnnouncement(@PathVariable Long professorId, @RequestBody Map<String, String> announcementData) {
         String content = announcementData.get("content");
         
+        logger.info("Received announcement creation request for professor {}: {}", professorId, announcementData);
+        
         if (content == null || content.trim().isEmpty()) {
+            logger.error("Announcement content is empty");
             return ResponseEntity.badRequest().body(Map.of("error", "Announcement content cannot be empty"));
         }
         
@@ -52,17 +55,23 @@ public class AnnouncementController {
         
         try {
             Professor professor = professorService.getProfessorById(professorId);
+            logger.info("Found professor: {}", professor.getId());
             
             Announcement announcement = new Announcement();
             announcement.setProfessor(professor);
             announcement.setContent(content);
             announcement.setPostedAt(LocalDateTime.now());
             
+            logger.info("Saving announcement: {}", announcement);
             Announcement savedAnnouncement = announcementService.saveAnnouncement(announcement);
+            logger.info("Successfully saved announcement with ID: {}", savedAnnouncement.getId());
             return ResponseEntity.ok(savedAnnouncement);
         } catch (IllegalArgumentException e) {
             logger.error("Professor not found with id: {}", professorId);
             return ResponseEntity.notFound().build();
+        } catch (Exception e) {
+            logger.error("Error creating announcement: {}", e.getMessage(), e);
+            return ResponseEntity.badRequest().body(Map.of("error", "Error creating announcement: " + e.getMessage()));
         }
     }
 

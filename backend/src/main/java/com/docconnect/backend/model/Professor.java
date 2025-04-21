@@ -1,11 +1,13 @@
 package com.docconnect.backend.model;
 
 import com.docconnect.backend.model.enums.Status;
+import com.fasterxml.jackson.annotation.JsonInclude;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Entity
 @Table(name = "professors")
@@ -41,6 +43,13 @@ public class Professor {
     private LocalDateTime createdAt;
     
     private LocalDateTime updatedAt;
+    
+    @Transient
+    @JsonInclude
+    private List<Announcement> announcements;
+    
+    @Column(name = "email_contact")
+    private String emailContact;
     
     @PrePersist
     protected void onCreate() {

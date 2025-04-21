@@ -19,10 +19,12 @@ public class Notification {
     
     @ManyToOne
     @JoinColumn(name = "student_id", nullable = false)
+    @com.fasterxml.jackson.annotation.JsonBackReference("student-notification")
     private User student;
     
     @ManyToOne
     @JoinColumn(name = "professor_id", nullable = false)
+    @com.fasterxml.jackson.annotation.JsonBackReference("professor-notification")
     private Professor professor;
     
     @Column(name = "notification_set_at", nullable = false)

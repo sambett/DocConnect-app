@@ -1,8 +1,10 @@
 package com.docconnect.backend.controller;
 
+import com.docconnect.backend.model.Announcement;
 import com.docconnect.backend.model.Professor;
 import com.docconnect.backend.model.StatusHistory;
 import com.docconnect.backend.model.enums.Status;
+import com.docconnect.backend.service.AnnouncementService;
 import com.docconnect.backend.service.ProfessorService;
 import com.docconnect.backend.service.StatusHistoryService;
 import org.slf4j.Logger;
@@ -22,16 +24,28 @@ public class ProfessorController {
     private static final Logger logger = LoggerFactory.getLogger(ProfessorController.class);
     private final ProfessorService professorService;
     private final StatusHistoryService statusHistoryService;
+    private final AnnouncementService announcementService;
 
-    public ProfessorController(ProfessorService professorService, StatusHistoryService statusHistoryService) {
+    public ProfessorController(
+            ProfessorService professorService, 
+            StatusHistoryService statusHistoryService,
+            AnnouncementService announcementService) {
         this.professorService = professorService;
         this.statusHistoryService = statusHistoryService;
+        this.announcementService = announcementService;
     }
 
     @GetMapping
     public ResponseEntity<List<Professor>> getAllProfessors() {
         logger.info("Getting all professors");
         List<Professor> professors = professorService.getAllProfessors();
+        
+        // For each professor, get their announcements
+        for (Professor professor : professors) {
+            List<Announcement> announcements = announcementService.getAnnouncementsByProfessor(professor);
+            professor.setAnnouncements(announcements);
+        }
+        
         return ResponseEntity.ok(professors);
     }
 
@@ -40,6 +54,11 @@ public class ProfessorController {
         logger.info("Getting professor with id: {}", id);
         try {
             Professor professor = professorService.getProfessorById(id);
+            
+            // Get announcements for this professor
+            List<Announcement> announcements = announcementService.getAnnouncementsByProfessor(professor);
+            professor.setAnnouncements(announcements);
+            
             return ResponseEntity.ok(professor);
         } catch (IllegalArgumentException e) {
             return ResponseEntity.notFound().build();
@@ -90,5 +109,38 @@ public class ProfessorController {
         Optional<Professor> professorOpt = professorService.getProfessorByUserId(userId);
         return professorOpt.map(ResponseEntity::ok)
                 .orElseGet(() -> ResponseEntity.notFound().build());
+    }
+    
+    @PutMapping("/{id}")
+    public ResponseEntity<Professor> updateProfessor(@PathVariable Long id, @RequestBody Professor professorUpdate) {
+        logger.info("Updating professor with id: {}", id);
+        try {
+            Professor existingProfessor = professorService.getProfessorById(id);
+            
+            // Update fields if provided in the request
+            if (professorUpdate.getDepartment() != null) {
+                existingProfessor.setDepartment(professorUpdate.getDepartment());
+            }
+            if (professorUpdate.getOfficeLocation() != null) {
+                existingProfessor.setOfficeLocation(professorUpdate.getOfficeLocation());
+            }
+            if (professorUpdate.getWorkingHours() != null) {
+                existingProfessor.setWorkingHours(professorUpdate.getWorkingHours());
+            }
+            if (professorUpdate.getEmailContact() != null) {
+                existingProfessor.setEmailContact(professorUpdate.getEmailContact());
+            }
+            
+            existingProfessor.setUpdatedAt(LocalDateTime.now());
+            
+            Professor updatedProfessor = professorService.saveProfessor(existingProfessor);
+            return ResponseEntity.ok(updatedProfessor);
+        } catch (IllegalArgumentException e) {
+            logger.error("Professor not found with id: {}", id);
+            return ResponseEntity.notFound().build();
+        } catch (Exception e) {
+            logger.error("Error updating professor: {}", e.getMessage(), e);
+            return ResponseEntity.badRequest().build();
+        }
     }
 }
