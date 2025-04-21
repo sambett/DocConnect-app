@@ -1,212 +1,94 @@
 package com.docconnect.backend.controller;
 
-import com.docconnect.backend.model.Announcement;
 import com.docconnect.backend.model.Professor;
 import com.docconnect.backend.model.StatusHistory;
-import com.docconnect.backend.model.User;
-import com.docconnect.backend.model.StatusHistory.Status;
-import com.docconnect.backend.repository.AnnouncementRepository;
-import com.docconnect.backend.repository.ProfessorRepository;
-import com.docconnect.backend.repository.StatusHistoryRepository;
-import com.docconnect.backend.repository.UserRepository;
-
-import org.springframework.beans.factory.annotation.Autowired;
+import com.docconnect.backend.model.enums.Status;
+import com.docconnect.backend.service.ProfessorService;
+import com.docconnect.backend.service.StatusHistoryService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/professors")
 public class ProfessorController {
 
-    @Autowired
-    private ProfessorRepository professorRepository;
-    
-    @Autowired
-    private StatusHistoryRepository statusHistoryRepository;
-    
-    @Autowired
-    private AnnouncementRepository announcementRepository;
-    
-    @Autowired
-    private UserRepository userRepository;
+    private static final Logger logger = LoggerFactory.getLogger(ProfessorController.class);
+    private final ProfessorService professorService;
+    private final StatusHistoryService statusHistoryService;
+
+    public ProfessorController(ProfessorService professorService, StatusHistoryService statusHistoryService) {
+        this.professorService = professorService;
+        this.statusHistoryService = statusHistoryService;
+    }
 
     @GetMapping
-    public ResponseEntity<List<Map<String, Object>>> getAllProfessors() {
-        List<Professor> professors = professorRepository.findAll();
-        
-        List<Map<String, Object>> result = professors.stream().map(professor -> {
-            Map<String, Object> profData = new HashMap<>();
-            profData.put("id", professor.getId());
-            profData.put("name", professor.getUser().getFullName());
-            profData.put("email", professor.getUser().getEmail());
-            profData.put("department", professor.getDepartment());
-            profData.put("officeLocation", professor.getOfficeLocation());
-            profData.put("workingHours", professor.getWorkingHours());
-            
-            // Get latest status
-            StatusHistory latestStatus = statusHistoryRepository.findTopByProfessorOrderByTimestampDesc(professor)
-                .orElse(null);
-            
-            if (latestStatus != null) {
-                profData.put("status", latestStatus.getStatus().name());
-                profData.put("statusUpdatedAt", latestStatus.getTimestamp());
-            } else {
-                profData.put("status", "UNKNOWN");
-                profData.put("statusUpdatedAt", null);
-            }
-            
-            // Get announcements
-            List<Map<String, Object>> announcements = announcementRepository.findByProfessorOrderByPostedAtDesc(professor)
-                .stream()
-                .map(announcement -> {
-                    Map<String, Object> announcementData = new HashMap<>();
-                    announcementData.put("id", announcement.getId());
-                    announcementData.put("content", announcement.getContent());
-                    announcementData.put("postedAt", announcement.getPostedAt());
-                    return announcementData;
-                })
-                .collect(Collectors.toList());
-            
-            profData.put("announcements", announcements);
-            
-            return profData;
-        }).collect(Collectors.toList());
-        
-        return ResponseEntity.ok(result);
+    public ResponseEntity<List<Professor>> getAllProfessors() {
+        logger.info("Getting all professors");
+        List<Professor> professors = professorService.getAllProfessors();
+        return ResponseEntity.ok(professors);
     }
-    
+
     @GetMapping("/{id}")
-    public ResponseEntity<?> getProfessorById(@PathVariable Long id) {
-        Optional<Professor> professorOpt = professorRepository.findById(id);
-        
-        if (!professorOpt.isPresent()) {
-            return ResponseEntity.notFound().build();
-        }
-        
-        Professor professor = professorOpt.get();
-        Map<String, Object> profData = new HashMap<>();
-        profData.put("id", professor.getId());
-        profData.put("name", professor.getUser().getFullName());
-        profData.put("email", professor.getUser().getEmail());
-        profData.put("department", professor.getDepartment());
-        profData.put("officeLocation", professor.getOfficeLocation());
-        profData.put("workingHours", professor.getWorkingHours());
-        
-        // Get latest status
-        StatusHistory latestStatus = statusHistoryRepository.findTopByProfessorOrderByTimestampDesc(professor)
-            .orElse(null);
-        
-        if (latestStatus != null) {
-            profData.put("status", latestStatus.getStatus().name());
-            profData.put("statusUpdatedAt", latestStatus.getTimestamp());
-        } else {
-            profData.put("status", "UNKNOWN");
-            profData.put("statusUpdatedAt", null);
-        }
-        
-        // Get status history
-        List<Map<String, Object>> statusHistory = statusHistoryRepository.findByProfessorOrderByTimestampDesc(professor)
-            .stream()
-            .map(status -> {
-                Map<String, Object> statusData = new HashMap<>();
-                statusData.put("id", status.getId());
-                statusData.put("status", status.getStatus().name());
-                statusData.put("timestamp", status.getTimestamp());
-                return statusData;
-            })
-            .collect(Collectors.toList());
-        
-        profData.put("statusHistory", statusHistory);
-        
-        // Get announcements
-        List<Map<String, Object>> announcements = announcementRepository.findByProfessorOrderByPostedAtDesc(professor)
-            .stream()
-            .map(announcement -> {
-                Map<String, Object> announcementData = new HashMap<>();
-                announcementData.put("id", announcement.getId());
-                announcementData.put("content", announcement.getContent());
-                announcementData.put("postedAt", announcement.getPostedAt());
-                return announcementData;
-            })
-            .collect(Collectors.toList());
-        
-        profData.put("announcements", announcements);
-        
-        return ResponseEntity.ok(profData);
-    }
-    
-    @PostMapping("/{id}/status")
-    public ResponseEntity<?> updateProfessorStatus(
-            @PathVariable Long id,
-            @RequestBody Map<String, String> statusUpdate) {
-        
-        Optional<Professor> professorOpt = professorRepository.findById(id);
-        
-        if (!professorOpt.isPresent()) {
-            return ResponseEntity.notFound().build();
-        }
-        
-        Professor professor = professorOpt.get();
-        
+    public ResponseEntity<Professor> getProfessorById(@PathVariable Long id) {
+        logger.info("Getting professor with id: {}", id);
         try {
-            Status newStatus = Status.valueOf(statusUpdate.get("status").toUpperCase());
-            
-            StatusHistory statusHistory = new StatusHistory();
-            statusHistory.setProfessor(professor);
-            statusHistory.setStatus(newStatus);
-            statusHistory.setTimestamp(LocalDateTime.now());
-            
-            statusHistoryRepository.save(statusHistory);
-            
-            Map<String, Object> response = new HashMap<>();
-            response.put("status", newStatus.name());
-            response.put("timestamp", statusHistory.getTimestamp());
-            response.put("message", "Status updated successfully");
-            
-            return ResponseEntity.ok(response);
+            Professor professor = professorService.getProfessorById(id);
+            return ResponseEntity.ok(professor);
         } catch (IllegalArgumentException e) {
-            return ResponseEntity.badRequest().body("Invalid status");
-        }
-    }
-    
-    @PostMapping("/{id}/announcements")
-    public ResponseEntity<?> createAnnouncement(
-            @PathVariable Long id,
-            @RequestBody Map<String, String> announcementData) {
-        
-        Optional<Professor> professorOpt = professorRepository.findById(id);
-        
-        if (!professorOpt.isPresent()) {
             return ResponseEntity.notFound().build();
         }
+    }
+
+    @PostMapping("/{id}/status")
+    public ResponseEntity<?> updateStatus(@PathVariable Long id, @RequestBody Map<String, String> statusUpdate) {
+        String newStatus = statusUpdate.get("status");
         
-        Professor professor = professorOpt.get();
-        
-        String content = announcementData.get("content");
-        if (content == null || content.trim().isEmpty()) {
-            return ResponseEntity.badRequest().body("Announcement content cannot be empty");
+        if (newStatus == null || newStatus.isEmpty()) {
+            return ResponseEntity.badRequest().body(Map.of("error", "Status cannot be empty"));
         }
         
-        Announcement announcement = new Announcement();
-        announcement.setProfessor(professor);
-        announcement.setContent(content);
-        announcement.setPostedAt(LocalDateTime.now());
+        logger.info("Updating status for professor {}: {}", id, newStatus);
         
-        announcementRepository.save(announcement);
+        Professor professor;
+        try {
+            professor = professorService.getProfessorById(id);
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.notFound().build();
+        }
+        professor.setStatus(newStatus);
+        professor.setUpdatedAt(LocalDateTime.now());
         
-        Map<String, Object> response = new HashMap<>();
-        response.put("id", announcement.getId());
-        response.put("content", announcement.getContent());
-        response.put("postedAt", announcement.getPostedAt());
-        response.put("message", "Announcement created successfully");
+        Professor updatedProfessor = professorService.saveProfessor(professor);
         
-        return ResponseEntity.ok(response);
+        // Create status history entry
+        StatusHistory statusHistory = new StatusHistory();
+        statusHistory.setProfessor(professor);
+        statusHistory.setStatus(Status.valueOf(newStatus));
+        statusHistory.setTimestamp(LocalDateTime.now());
+        statusHistoryService.saveStatusHistory(statusHistory);
+        
+        return ResponseEntity.ok(updatedProfessor);
+    }
+
+    @GetMapping("/{id}/status-history")
+    public ResponseEntity<List<StatusHistory>> getStatusHistory(@PathVariable Long id) {
+        logger.info("Getting status history for professor: {}", id);
+        List<StatusHistory> history = statusHistoryService.getStatusHistoryByProfessorId(id);
+        return ResponseEntity.ok(history);
+    }
+
+    @GetMapping("/by-user/{userId}")
+    public ResponseEntity<Professor> getProfessorByUserId(@PathVariable Long userId) {
+        logger.info("Getting professor by user id: {}", userId);
+        Optional<Professor> professorOpt = professorService.getProfessorByUserId(userId);
+        return professorOpt.map(ResponseEntity::ok)
+                .orElseGet(() -> ResponseEntity.notFound().build());
     }
 }

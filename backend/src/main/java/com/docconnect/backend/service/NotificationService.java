@@ -4,6 +4,7 @@ import com.docconnect.backend.model.Notification;
 import com.docconnect.backend.model.Professor;
 import com.docconnect.backend.model.StatusHistory;
 import com.docconnect.backend.model.User;
+import com.docconnect.backend.model.enums.Status;
 import com.docconnect.backend.repository.NotificationRepository;
 import com.docconnect.backend.repository.ProfessorRepository;
 import com.docconnect.backend.repository.StatusHistoryRepository;
@@ -34,7 +35,7 @@ public class NotificationService {
         // Check if the professor is already available
         StatusHistory currentStatus = statusHistoryRepository.findFirstByProfessorOrderByTimestampDesc(professor)
                 .orElse(null);
-        if (currentStatus != null && currentStatus.getStatus() == StatusHistory.Status.AVAILABLE) {
+        if (currentStatus != null && currentStatus.getStatus() == Status.AVAILABLE) {
             throw new IllegalArgumentException("Professor is already available");
         }
         

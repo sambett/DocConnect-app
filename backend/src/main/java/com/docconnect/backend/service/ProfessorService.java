@@ -42,6 +42,10 @@ public class ProfessorService {
         }
         return professorRepository.save(professor);
     }
+    
+    public Professor saveProfessor(Professor professor) {
+        return professorRepository.save(professor);
+    }
 
     public void deleteProfessor(Long id) {
         professorRepository.deleteById(id);

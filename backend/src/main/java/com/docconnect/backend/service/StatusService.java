@@ -3,6 +3,7 @@ package com.docconnect.backend.service;
 import com.docconnect.backend.model.Notification;
 import com.docconnect.backend.model.Professor;
 import com.docconnect.backend.model.StatusHistory;
+import com.docconnect.backend.model.enums.Status;
 import com.docconnect.backend.repository.NotificationRepository;
 import com.docconnect.backend.repository.ProfessorRepository;
 import com.docconnect.backend.repository.StatusHistoryRepository;
@@ -37,7 +38,7 @@ public class StatusService {
     }
 
     @Transactional
-    public StatusHistory updateStatus(Long professorId, StatusHistory.Status status) {
+    public StatusHistory updateStatus(Long professorId, Status status) {
         Professor professor = professorRepository.findById(professorId)
                 .orElseThrow(() -> new IllegalArgumentException("Professor not found"));
         
@@ -49,7 +50,7 @@ public class StatusService {
         statusHistory = statusHistoryRepository.save(statusHistory);
         
         // If status is AVAILABLE, notify all waiting students
-        if (status == StatusHistory.Status.AVAILABLE) {
+        if (Status.AVAILABLE.equals(status)) {
             List<Notification> notifications = notificationRepository.findByProfessorAndNotifiedFalse(professor);
             notifications.forEach(notification -> {
                 notification.setNotified(true);

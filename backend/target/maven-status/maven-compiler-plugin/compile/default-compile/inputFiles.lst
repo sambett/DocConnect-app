@@ -9,6 +9,7 @@ C:\Users\SelmaB\Desktop\DocConnect\backend\src\main\java\com\docconnect\backend\
 C:\Users\SelmaB\Desktop\DocConnect\backend\src\main\java\com\docconnect\backend\controller\TestController.java
 C:\Users\SelmaB\Desktop\DocConnect\backend\src\main\java\com\docconnect\backend\repository\StatusHistoryRepository.java
 C:\Users\SelmaB\Desktop\DocConnect\backend\src\main\java\com\docconnect\backend\service\ProfessorService.java
+C:\Users\SelmaB\Desktop\DocConnect\backend\src\main\java\com\docconnect\backend\service\StatusHistoryService.java
 C:\Users\SelmaB\Desktop\DocConnect\backend\src\main\java\com\docconnect\backend\controller\TestDataController.java
 C:\Users\SelmaB\Desktop\DocConnect\backend\src\main\java\com\docconnect\backend\service\AuthenticationService.java
 C:\Users\SelmaB\Desktop\DocConnect\backend\src\main\java\com\docconnect\backend\controller\HomeController.java
@@ -20,6 +21,7 @@ C:\Users\SelmaB\Desktop\DocConnect\backend\src\main\java\com\docconnect\backend\
 C:\Users\SelmaB\Desktop\DocConnect\backend\src\main\java\com\docconnect\backend\model\Professor.java
 C:\Users\SelmaB\Desktop\DocConnect\backend\src\main\java\com\docconnect\backend\security\JwtTokenService.java
 C:\Users\SelmaB\Desktop\DocConnect\backend\src\main\java\com\docconnect\backend\model\Announcement.java
+C:\Users\SelmaB\Desktop\DocConnect\backend\src\main\java\com\docconnect\backend\config\TestDataSeeder.java
 C:\Users\SelmaB\Desktop\DocConnect\backend\src\main\java\com\docconnect\backend\config\WebConfig.java
 C:\Users\SelmaB\Desktop\DocConnect\backend\src\main\java\com\docconnect\backend\repository\UserRepository.java
 C:\Users\SelmaB\Desktop\DocConnect\backend\src\main\java\com\docconnect\backend\service\UserService.java
@@ -35,5 +37,6 @@ C:\Users\SelmaB\Desktop\DocConnect\backend\src\main\java\com\docconnect\backend\
 C:\Users\SelmaB\Desktop\DocConnect\backend\src\main\java\com\docconnect\backend\config\FirebaseConfig.java
 C:\Users\SelmaB\Desktop\DocConnect\backend\src\main\java\com\docconnect\backend\DocConnectApplication.java
 C:\Users\SelmaB\Desktop\DocConnect\backend\src\main\java\com\docconnect\backend\service\FirebaseAuthService.java
+C:\Users\SelmaB\Desktop\DocConnect\backend\src\main\java\com\docconnect\backend\config\DatabaseInitializer.java
 C:\Users\SelmaB\Desktop\DocConnect\backend\src\main\java\com\docconnect\backend\config\JacksonConfig.java
 C:\Users\SelmaB\Desktop\DocConnect\backend\src\main\java\com\docconnect\backend\model\StatusHistory.java

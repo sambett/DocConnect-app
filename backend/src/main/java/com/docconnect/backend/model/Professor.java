@@ -1,5 +1,6 @@
 package com.docconnect.backend.model;
 
+import com.docconnect.backend.model.enums.Status;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -32,6 +33,9 @@ public class Professor {
     
     @Column(name = "email_verified")
     private Boolean emailVerified;
+    
+    @Column(name = "status", nullable = false)
+    private String status = Status.AWAY.name();
     
     @Column(nullable = false)
     private LocalDateTime createdAt;
