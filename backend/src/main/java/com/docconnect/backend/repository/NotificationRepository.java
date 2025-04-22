@@ -4,6 +4,8 @@ import com.docconnect.backend.model.Notification;
 import com.docconnect.backend.model.Professor;
 import com.docconnect.backend.model.User;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -18,6 +20,11 @@ public interface NotificationRepository extends JpaRepository<Notification, Long
     
     // Added methods to match those used in StudentController
     List<Notification> findByStudentId(Long studentId);
-    Optional<Notification> findByStudentIdAndProfessorId(Long studentId, Long professorId);
+    
+    // Using Query annotation to properly find by student ID and professor ID
+    @Query("SELECT n FROM Notification n WHERE n.student.id = :studentId AND n.professor.id = :professorId")
+    Optional<Notification> findByStudentIdAndProfessorId(@Param("studentId") Long studentId, @Param("professorId") Long professorId);
+    
+    // Additional method that might be needed
+    List<Notification> findByStudentAndNotifiedFalse(User student);
 }
-

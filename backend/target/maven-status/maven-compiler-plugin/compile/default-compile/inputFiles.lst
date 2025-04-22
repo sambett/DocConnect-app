@@ -37,9 +37,7 @@ C:\Users\SelmaB\Desktop\DocConnect\backend\src\main\java\com\docconnect\backend\
 C:\Users\SelmaB\Desktop\DocConnect\backend\src\main\java\com\docconnect\backend\service\NotificationService.java
 C:\Users\SelmaB\Desktop\DocConnect\backend\src\main\java\com\docconnect\backend\repository\FavoriteRepository.java
 C:\Users\SelmaB\Desktop\DocConnect\backend\src\main\java\com\docconnect\backend\repository\NotificationRepository.java
-C:\Users\SelmaB\Desktop\DocConnect\backend\src\main\java\com\docconnect\backend\config\FirebaseConfig.java
 C:\Users\SelmaB\Desktop\DocConnect\backend\src\main\java\com\docconnect\backend\DocConnectApplication.java
-C:\Users\SelmaB\Desktop\DocConnect\backend\src\main\java\com\docconnect\backend\service\FirebaseAuthService.java
 C:\Users\SelmaB\Desktop\DocConnect\backend\src\main\java\com\docconnect\backend\config\DatabaseInitializer.java
 C:\Users\SelmaB\Desktop\DocConnect\backend\src\main\java\com\docconnect\backend\config\JacksonConfig.java
 C:\Users\SelmaB\Desktop\DocConnect\backend\src\main\java\com\docconnect\backend\model\StatusHistory.java
