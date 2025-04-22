@@ -67,7 +67,7 @@ public class StudentController {
         studentData.put("email", student.getEmail());
         
         // Get favorites
-        List<Long> favoriteIds = favoriteRepository.findByStudentId(student.getId())
+        List<Long> favoriteIds = favoriteRepository.findByStudent_Id(student.getId())
             .stream()
             .map(favorite -> favorite.getProfessor().getId())
             .collect(Collectors.toList());
@@ -75,7 +75,7 @@ public class StudentController {
         studentData.put("favorites", favoriteIds);
         
         // Get notifications
-        List<Map<String, Object>> notifications = notificationRepository.findByStudentId(student.getId())
+        List<Map<String, Object>> notifications = notificationRepository.findByStudent_Id(student.getId())
             .stream()
             .map(notification -> {
                 Map<String, Object> notificationData = new HashMap<>();
@@ -112,7 +112,7 @@ public class StudentController {
         Professor professor = professorOpt.get();
         
         // Check if favorite already exists
-        Optional<Favorite> existingFavorite = favoriteRepository.findByStudentIdAndProfessorId(studentId, professorId);
+        Optional<Favorite> existingFavorite = favoriteRepository.findByStudent_IdAndProfessor_Id(studentId, professorId);
         
         Map<String, Object> response = new HashMap<>();
         
@@ -156,7 +156,7 @@ public class StudentController {
             Professor professor = professorOpt.get();
             
             // Check if notification already exists
-            Optional<Notification> existingNotification = notificationRepository.findByStudentIdAndProfessorId(studentId, professorId);
+            Optional<Notification> existingNotification = notificationRepository.findByStudent_IdAndProfessor_Id(studentId, professorId);
             
             Map<String, Object> response = new HashMap<>();
             

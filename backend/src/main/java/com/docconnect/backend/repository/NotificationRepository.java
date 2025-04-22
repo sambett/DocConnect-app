@@ -18,12 +18,11 @@ public interface NotificationRepository extends JpaRepository<Notification, Long
     int countByProfessorAndNotifiedFalse(Professor professor);
     boolean existsByStudentAndProfessorAndNotifiedFalse(User student, Professor professor);
     
-    // Added methods to match those used in StudentController
-    List<Notification> findByStudentId(Long studentId);
+    // Changed method names to match JPA naming convention for nested properties
+    List<Notification> findByStudent_Id(Long studentId);
     
-    // Using Query annotation to properly find by student ID and professor ID
-    @Query("SELECT n FROM Notification n WHERE n.student.id = :studentId AND n.professor.id = :professorId")
-    Optional<Notification> findByStudentIdAndProfessorId(@Param("studentId") Long studentId, @Param("professorId") Long professorId);
+    // Using proper naming convention for nested properties
+    Optional<Notification> findByStudent_IdAndProfessor_Id(Long studentId, Long professorId);
     
     // Additional method that might be needed
     List<Notification> findByStudentAndNotifiedFalse(User student);
