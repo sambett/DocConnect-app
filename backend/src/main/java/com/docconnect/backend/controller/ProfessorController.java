@@ -102,6 +102,18 @@ public class ProfessorController {
         List<StatusHistory> history = statusHistoryService.getStatusHistoryByProfessorId(id);
         return ResponseEntity.ok(history);
     }
+    
+    @DeleteMapping("/{id}/status-history")
+    public ResponseEntity<?> clearStatusHistory(@PathVariable Long id) {
+        logger.info("Clearing status history for professor: {}", id);
+        try {
+            statusHistoryService.clearStatusHistoryByProfessorId(id);
+            return ResponseEntity.ok(Map.of("message", "Status history cleared successfully"));
+        } catch (Exception e) {
+            logger.error("Error clearing status history: {}", e.getMessage(), e);
+            return ResponseEntity.badRequest().body(Map.of("error", "Failed to clear status history"));
+        }
+    }
 
     @GetMapping("/by-user/{userId}")
     public ResponseEntity<Professor> getProfessorByUserId(@PathVariable Long userId) {

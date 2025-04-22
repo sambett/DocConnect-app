@@ -26,4 +26,9 @@ public class StatusHistoryService {
     public void deleteStatusHistory(Long id) {
         statusHistoryRepository.deleteById(id);
     }
+    
+    public void clearStatusHistoryByProfessorId(Long professorId) {
+        List<StatusHistory> historyToDelete = statusHistoryRepository.findByProfessorIdOrderByTimestampDesc(professorId);
+        statusHistoryRepository.deleteAll(historyToDelete);
+    }
 }
