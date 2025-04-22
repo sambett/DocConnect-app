@@ -211,35 +211,7 @@ status_history (id, professor_id, status, timestamp)
 - `POST /api/favorites` - Add professor to favorites
 - `DELETE /api/favorites` - Remove from favorites
 
-## 🧪 Testing
 
-### Backend Testing
-```bash
-cd backend
-mvn test
-```
-
-### Frontend Testing
-```bash
-cd frontend/docconnect-app
-npm test
-```
-
-## 🚀 Deployment
-
-### Backend Deployment
-The Spring Boot application can be deployed as a JAR file:
-```bash
-mvn clean package
-java -jar target/backend-0.0.1-SNAPSHOT.jar
-```
-
-### Frontend Deployment
-Build the Angular application for production:
-```bash
-ng build --configuration production
-```
-The build artifacts will be stored in the `dist/` directory.
 
 ## 🤝 Contributing
 
@@ -257,11 +229,7 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 - **Selma Bettaieb** - [sambett](https://github.com/sambett)
 
-## 🙏 Acknowledgments
 
-- Thanks to all contributors who have helped shape DocConnect
-- Special thanks to the academic community for feedback and suggestions
-- Built with ❤️ for students and professors worldwide
 
 ## 🔮 Future Enhancements
 
@@ -272,8 +240,7 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 - [ ] Advanced analytics dashboard
 - [ ] Multi-language support
 - [ ] Dark mode theme
-- [ ] File sharing capabilities
 
 ---
 
-<p align="center">Made with ❤️ by the DocConnect Team</p>
+<p align="center">Made with ❤️ Selma Bettaieb</p>
