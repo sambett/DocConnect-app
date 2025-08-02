@@ -3,10 +3,12 @@ package com.docconnect.backend.controller;
 import com.docconnect.backend.model.Announcement;
 import com.docconnect.backend.model.Professor;
 import com.docconnect.backend.model.StatusHistory;
+import com.docconnect.backend.model.User;
 import com.docconnect.backend.model.enums.Status;
 import com.docconnect.backend.service.AnnouncementService;
 import com.docconnect.backend.service.ProfessorService;
 import com.docconnect.backend.service.StatusHistoryService;
+import com.docconnect.backend.service.UserService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.ResponseEntity;
@@ -25,14 +27,17 @@ public class ProfessorController {
     private final ProfessorService professorService;
     private final StatusHistoryService statusHistoryService;
     private final AnnouncementService announcementService;
+    private final UserService userService;
 
     public ProfessorController(
             ProfessorService professorService, 
             StatusHistoryService statusHistoryService,
-            AnnouncementService announcementService) {
+            AnnouncementService announcementService,
+            UserService userService) {
         this.professorService = professorService;
         this.statusHistoryService = statusHistoryService;
         this.announcementService = announcementService;
+        this.userService = userService;
     }
 
     @GetMapping
@@ -129,23 +134,53 @@ public class ProfessorController {
         try {
             Professor existingProfessor = professorService.getProfessorById(id);
             
-            // Update fields if provided in the request
-            if (professorUpdate.getDepartment() != null) {
-                existingProfessor.setDepartment(professorUpdate.getDepartment());
+            // Update fields if provided in the request (make sure to sanitize where needed)
+            if (professorUpdate.getDepartment() != null && !professorUpdate.getDepartment().trim().isEmpty()) {
+                existingProfessor.setDepartment(professorUpdate.getDepartment().trim());
             }
+            
             if (professorUpdate.getOfficeLocation() != null) {
-                existingProfessor.setOfficeLocation(professorUpdate.getOfficeLocation());
+                existingProfessor.setOfficeLocation(professorUpdate.getOfficeLocation().trim());
+                logger.info("Updated office location to: {}", professorUpdate.getOfficeLocation());
             }
+            
             if (professorUpdate.getWorkingHours() != null) {
-                existingProfessor.setWorkingHours(professorUpdate.getWorkingHours());
+                existingProfessor.setWorkingHours(professorUpdate.getWorkingHours().trim());
+                logger.info("Updated working hours to: {}", professorUpdate.getWorkingHours());
             }
-            if (professorUpdate.getEmailContact() != null) {
-                existingProfessor.setEmailContact(professorUpdate.getEmailContact());
+            
+            if (professorUpdate.getEmailContact() != null && !professorUpdate.getEmailContact().trim().isEmpty()) {
+                existingProfessor.setEmailContact(professorUpdate.getEmailContact().trim());
+            }
+            
+            // Handle user updates if provided
+            if (professorUpdate.getUser() != null) {
+                User user = existingProfessor.getUser();
+                
+                // Update user fields if provided
+                if (professorUpdate.getUser().getFullName() != null && !professorUpdate.getUser().getFullName().trim().isEmpty()) {
+                    user.setFullName(professorUpdate.getUser().getFullName().trim());
+                    logger.info("Updated user name to: {}", professorUpdate.getUser().getFullName());
+                }
+                
+                if (professorUpdate.getUser().getEmail() != null && !professorUpdate.getUser().getEmail().trim().isEmpty()) {
+                    user.setEmail(professorUpdate.getUser().getEmail().trim());
+                    logger.info("Updated user email to: {}", professorUpdate.getUser().getEmail());
+                }
+                
+                user.setUpdatedAt(LocalDateTime.now());
+                userService.saveUser(user); // Save the user updates
             }
             
             existingProfessor.setUpdatedAt(LocalDateTime.now());
             
             Professor updatedProfessor = professorService.saveProfessor(existingProfessor);
+            logger.info("Professor updated successfully. New values: department={}, location={}, hours={}, email={}", 
+                    updatedProfessor.getDepartment(), 
+                    updatedProfessor.getOfficeLocation(), 
+                    updatedProfessor.getWorkingHours(),
+                    updatedProfessor.getEmailContact());
+            
             return ResponseEntity.ok(updatedProfessor);
         } catch (IllegalArgumentException e) {
             logger.error("Professor not found with id: {}", id);
@@ -153,6 +188,33 @@ public class ProfessorController {
         } catch (Exception e) {
             logger.error("Error updating professor: {}", e.getMessage(), e);
             return ResponseEntity.badRequest().build();
+        }
+    }
+    
+    @DeleteMapping("/{id}/account")
+    public ResponseEntity<?> deleteProfessorAccount(@PathVariable Long id) {
+        logger.info("Deleting professor account with id: {}", id);
+        try {
+            // Get the professor to find associated user
+            Professor professor = professorService.getProfessorById(id);
+            User user = professor.getUser();
+            Long userId = user.getId();
+            
+            // Delete professor first (to maintain referential integrity)
+            professorService.deleteProfessor(id);
+            logger.info("Deleted professor with id: {}", id);
+            
+            // Then delete the user account
+            userService.deleteUser(userId);
+            logger.info("Deleted user with id: {}", userId);
+            
+            return ResponseEntity.ok(Map.of("message", "Account deleted successfully"));
+        } catch (IllegalArgumentException e) {
+            logger.error("Professor not found with id: {}", id);
+            return ResponseEntity.notFound().build();
+        } catch (Exception e) {
+            logger.error("Error deleting professor account: {}", e.getMessage(), e);
+            return ResponseEntity.status(500).body(Map.of("error", "Failed to delete account: " + e.getMessage()));
         }
     }
 }

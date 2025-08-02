@@ -1,0 +1,92 @@
+version: '3.8'
+
+services:
+  # MySQL Database
+  docconnect-database:
+    image: mysql:8.0
+    container_name: docconnect-mysql
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASSWORD:-docconnect_root_2024}
+      MYSQL_DATABASE: ${DB_NAME:-docconnect}
+      MYSQL_USER: ${DB_USERNAME:-docconnect_user}
+      MYSQL_PASSWORD: ${DB_PASSWORD:-docconnect_pass_2024}
+    ports:
+      - "3307:3306"  # Mapped to 3307 to avoid conflicts with local MySQL
+    volumes:
+      - mysql_data:/var/lib/mysql
+      - ./init-db:/docker-entrypoint-initdb.d:ro
+    networks:
+      - docconnect-network
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      timeout: 20s
+      retries: 10
+      interval: 10s
+      start_period: 40s
+
+  # Spring Boot Backend
+  docconnect-backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: docconnect-api
+    restart: unless-stopped
+    environment:
+      # Database configuration
+      DB_URL: jdbc:mysql://docconnect-database:3306/${DB_NAME:-docconnect}?createDatabaseIfNotExist=true&useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true
+      DB_USERNAME: ${DB_USERNAME:-docconnect_user}
+      DB_PASSWORD: ${DB_PASSWORD:-docconnect_pass_2024}
+      
+      # Application configuration
+      JWT_SECRET: ${JWT_SECRET:-docconnect-production-secret-key-change-this}
+      CORS_ORIGINS: http://localhost:3000,http://localhost:4200
+      SHOW_SQL: ${SHOW_SQL:-false}
+      
+      # Spring profiles
+      SPRING_PROFILES_ACTIVE: ${SPRING_PROFILES_ACTIVE:-docker}
+    ports:
+      - "8080:8080"
+    depends_on:
+      docconnect-database:
+        condition: service_healthy
+    networks:
+      - docconnect-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/api/actuator/health"]
+      timeout: 10s
+      retries: 5
+      interval: 30s
+      start_period: 60s
+
+  # Angular Frontend with Nginx
+  docconnect-frontend:
+    build:
+      context: ./frontend/docconnect-app
+      dockerfile: Dockerfile
+    container_name: docconnect-web
+    restart: unless-stopped
+    ports:
+      - "3000:80"  # Frontend available on port 3000
+    depends_on:
+      docconnect-backend:
+        condition: service_healthy
+    networks:
+      - docconnect-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost/health"]
+      timeout: 10s
+      retries: 3
+      interval: 30s
+      start_period: 10s
+
+# Named volumes for data persistence
+volumes:
+  mysql_data:
+    driver: local
+
+# Custom network for container communication
+networks:
+  docconnect-network:
+    driver: bridge
+    name: docconnect-network

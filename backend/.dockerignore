@@ -1,0 +1,40 @@
+# Exclude build artifacts
+target/
+*.jar
+*.war
+*.ear
+
+# Exclude IDE files
+.idea/
+.vscode/
+*.iml
+*.iws
+*.ipr
+.settings/
+.project
+.classpath
+
+# Exclude OS files
+.DS_Store
+Thumbs.db
+
+# Exclude Git
+.git/
+.gitignore
+
+# Exclude Docker files
+Dockerfile
+.dockerignore
+
+# Exclude documentation
+README*.md
+*.pdf
+
+# Exclude logs
+*.log
+logs/
+
+# Exclude temporary files
+*.tmp
+*.temp
+.cache/

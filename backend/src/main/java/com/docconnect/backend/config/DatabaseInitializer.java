@@ -15,9 +15,11 @@ import org.springframework.core.env.Environment;
 import com.docconnect.backend.security.PasswordEncoder;
 
 import java.time.LocalDateTime;
-import java.util.Arrays;
-import java.util.List;
 
+/**
+ * Responsible for initializing the database with required data when the application starts.
+ * This class runs on application startup and can initialize admin users or required configuration.
+ */
 @Configuration
 public class DatabaseInitializer {
 
@@ -27,6 +29,15 @@ public class DatabaseInitializer {
     @Autowired
     private PasswordEncoder passwordEncoder;
 
+    /**
+     * Creates a CommandLineRunner bean that initializes the database with required data.
+     * This runs on application startup and will be skipped if the database already contains data.
+     *
+     * @param userRepository Repository for user data access
+     * @param professorRepository Repository for professor data access
+     * @param statusHistoryRepository Repository for status history data access
+     * @return CommandLineRunner for database initialization
+     */
     @Bean
     public CommandLineRunner initDatabase(
             UserRepository userRepository,
@@ -40,34 +51,21 @@ public class DatabaseInitializer {
                 return;
             }
             
-            System.out.println("Initializing database with seed data...");
-            
-            // Create professors
-            String password = passwordEncoder.encode("docconnect2025");
-            
-            List<User> users = Arrays.asList(
-                createUser(userRepository, "Amina Ben Ali", "amina.benali@university.edu", password, User.Role.PROFESSOR),
-                createUser(userRepository, "Karim Hassan", "karim.hassan@university.edu", password, User.Role.PROFESSOR),
-                createUser(userRepository, "Fatima Zahra", "fatima.zahra@university.edu", password, User.Role.PROFESSOR)
-            );
-            
-            // Create professor details
-            Professor professor1 = createProfessor(professorRepository, users.get(0), "Computer Science", 
-                "Building A, Room 304", "Mon, Wed, Fri: 10:00-12:00");
-            createStatus(statusHistoryRepository, professor1, Status.AVAILABLE);
-            
-            Professor professor2 = createProfessor(professorRepository, users.get(1), "Mathematics", 
-                "Building B, Room 201", "Tue, Thu: 14:00-16:00");
-            createStatus(statusHistoryRepository, professor2, Status.BUSY);
-            
-            Professor professor3 = createProfessor(professorRepository, users.get(2), "Physics", 
-                "Building C, Room 105", "Mon, Wed: 13:00-15:00, Fri: 09:00-11:00");
-            createStatus(statusHistoryRepository, professor3, Status.AWAY);
-            
-            System.out.println("Database initialization complete!");
+            System.out.println("Database initialization check complete.");
+            // No mock data initialization - production environment should use proper data loading
         };
     }
     
+    /**
+     * Creates a new user with the specified details.
+     *
+     * @param repository Repository for user data access
+     * @param fullName Full name of the user
+     * @param email Email address of the user
+     * @param passwordHash Hashed password for the user
+     * @param role Role of the user (PROFESSOR or STUDENT)
+     * @return The saved User entity
+     */
     private User createUser(UserRepository repository, String fullName, String email, String passwordHash, User.Role role) {
         User user = new User();
         user.setFullName(fullName);
@@ -80,6 +78,16 @@ public class DatabaseInitializer {
         return repository.save(user);
     }
     
+    /**
+     * Creates a new professor profile associated with a user.
+     *
+     * @param repository Repository for professor data access
+     * @param user The user entity to associate with this professor
+     * @param department Academic department of the professor
+     * @param officeLocation Office location (building, room number)
+     * @param workingHours Office hours schedule as a string
+     * @return The saved Professor entity
+     */
     private Professor createProfessor(ProfessorRepository repository, User user, String department, 
                                       String officeLocation, String workingHours) {
         Professor professor = new Professor();
@@ -94,6 +102,14 @@ public class DatabaseInitializer {
         return repository.save(professor);
     }
     
+    /**
+     * Creates a new status history entry for a professor.
+     *
+     * @param repository Repository for status history data access
+     * @param professor The professor whose status is being set
+     * @param status The new status (AVAILABLE, BUSY, AWAY, or IN_MEETING)
+     * @return The saved StatusHistory entity
+     */
     private StatusHistory createStatus(StatusHistoryRepository repository, Professor professor, Status status) {
         StatusHistory statusHistory = new StatusHistory();
         statusHistory.setProfessor(professor);
