@@ -16,6 +16,17 @@ DocConnect is a basic appointment system where:
 - **Authentication**: JWT tokens
 - **Frontend**: Angular with Bootstrap (basic implementation)
 - **Deployment**: Docker & Docker Compose
+- 
+### 🎯 Why MVC Works Best for DocConnect:
+
+1. **Clear Separation**: Business logic (Model) stays separate from request handling (Controller)
+2. **Scalability**: Easy to add new controllers or modify models without affecting other layers
+3. **Testability**: Each layer can be unit tested independently
+4. **REST API Design**: Controllers naturally map to REST endpoints
+5. **Team Development**: Frontend and backend teams can work independently
+6. **Maintenance**: Bug fixes and features can be isolated to specific layers
+
+This pattern is particularly effective for **web applications with database persistence** where you need clean API design and future extensibility.
 
 ## 📊 Database Schema
 
