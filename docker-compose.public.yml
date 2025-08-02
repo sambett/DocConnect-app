@@ -1,0 +1,80 @@
+version: '3.8'
+
+services:
+  # MySQL Database (CUSTOM IMAGE WITH INIT SCRIPTS)
+  docconnect-database:
+    image: sambett1/docconnect-mysql:latest
+    container_name: docconnect-mysql
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASSWORD:-docconnect_root_2024}
+      MYSQL_DATABASE: ${DB_NAME:-docconnect}
+      MYSQL_USER: ${DB_USERNAME:-docconnect_user}
+      MYSQL_PASSWORD: ${DB_PASSWORD:-docconnect_pass_2024}
+    ports:
+      - "3307:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+    networks:
+      - docconnect-network
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      timeout: 20s
+      retries: 10
+      interval: 10s
+      start_period: 40s
+
+  # Spring Boot Backend (FROM DOCKERHUB)
+  docconnect-backend:
+    image: sambett1/docconnect-backend:latest
+    container_name: docconnect-api
+    restart: unless-stopped
+    environment:
+      DB_URL: jdbc:mysql://docconnect-database:3306/${DB_NAME:-docconnect}?createDatabaseIfNotExist=true&useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true
+      DB_USERNAME: ${DB_USERNAME:-docconnect_user}
+      DB_PASSWORD: ${DB_PASSWORD:-docconnect_pass_2024}
+      JWT_SECRET: ${JWT_SECRET:-docconnect-production-secret-key-change-this}
+      CORS_ORIGINS: http://localhost:3000,http://localhost:4200
+      SHOW_SQL: ${SHOW_SQL:-false}
+      SPRING_PROFILES_ACTIVE: ${SPRING_PROFILES_ACTIVE:-docker}
+    ports:
+      - "8080:8080"
+    depends_on:
+      docconnect-database:
+        condition: service_healthy
+    networks:
+      - docconnect-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/api/actuator/health"]
+      timeout: 10s
+      retries: 5
+      interval: 30s
+      start_period: 60s
+
+  # Angular Frontend with Nginx (FROM DOCKERHUB)
+  docconnect-frontend:
+    image: sambett1/docconnect-frontend:latest
+    container_name: docconnect-web
+    restart: unless-stopped
+    ports:
+      - "3000:80"
+    depends_on:
+      docconnect-backend:
+        condition: service_healthy
+    networks:
+      - docconnect-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost/health"]
+      timeout: 10s
+      retries: 3
+      interval: 30s
+      start_period: 10s
+
+volumes:
+  mysql_data:
+    driver: local
+
+networks:
+  docconnect-network:
+    driver: bridge
+    name: docconnect-network

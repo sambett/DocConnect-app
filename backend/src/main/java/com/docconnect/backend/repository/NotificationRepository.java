@@ -4,6 +4,8 @@ import com.docconnect.backend.model.Notification;
 import com.docconnect.backend.model.Professor;
 import com.docconnect.backend.model.User;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -16,8 +18,12 @@ public interface NotificationRepository extends JpaRepository<Notification, Long
     int countByProfessorAndNotifiedFalse(Professor professor);
     boolean existsByStudentAndProfessorAndNotifiedFalse(User student, Professor professor);
     
-    // Added methods to match those used in StudentController
-    List<Notification> findByStudentId(Long studentId);
-    Optional<Notification> findByStudentIdAndProfessorId(Long studentId, Long professorId);
+    // Changed method names to match JPA naming convention for nested properties
+    List<Notification> findByStudent_Id(Long studentId);
+    
+    // Using proper naming convention for nested properties
+    Optional<Notification> findByStudent_IdAndProfessor_Id(Long studentId, Long professorId);
+    
+    // Additional method that might be needed
+    List<Notification> findByStudentAndNotifiedFalse(User student);
 }
-

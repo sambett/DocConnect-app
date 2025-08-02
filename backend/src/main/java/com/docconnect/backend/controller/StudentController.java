@@ -67,7 +67,7 @@ public class StudentController {
         studentData.put("email", student.getEmail());
         
         // Get favorites
-        List<Long> favoriteIds = favoriteRepository.findByStudentId(student.getId())
+        List<Long> favoriteIds = favoriteRepository.findByStudent_Id(student.getId())
             .stream()
             .map(favorite -> favorite.getProfessor().getId())
             .collect(Collectors.toList());
@@ -75,7 +75,7 @@ public class StudentController {
         studentData.put("favorites", favoriteIds);
         
         // Get notifications
-        List<Map<String, Object>> notifications = notificationRepository.findByStudentId(student.getId())
+        List<Map<String, Object>> notifications = notificationRepository.findByStudent_Id(student.getId())
             .stream()
             .map(notification -> {
                 Map<String, Object> notificationData = new HashMap<>();
@@ -112,7 +112,7 @@ public class StudentController {
         Professor professor = professorOpt.get();
         
         // Check if favorite already exists
-        Optional<Favorite> existingFavorite = favoriteRepository.findByStudentIdAndProfessorId(studentId, professorId);
+        Optional<Favorite> existingFavorite = favoriteRepository.findByStudent_IdAndProfessor_Id(studentId, professorId);
         
         Map<String, Object> response = new HashMap<>();
         
@@ -141,42 +141,50 @@ public class StudentController {
             @PathVariable Long studentId,
             @PathVariable Long professorId) {
         
-        Optional<User> studentOpt = userRepository.findById(studentId);
-        if (!studentOpt.isPresent() || studentOpt.get().getRole() != Role.STUDENT) {
-            return ResponseEntity.badRequest().body("Invalid student ID");
-        }
-        
-        Optional<Professor> professorOpt = professorRepository.findById(professorId);
-        if (!professorOpt.isPresent()) {
-            return ResponseEntity.badRequest().body("Invalid professor ID");
-        }
-        
-        User student = studentOpt.get();
-        Professor professor = professorOpt.get();
-        
-        // Check if notification already exists
-        Optional<Notification> existingNotification = notificationRepository.findByStudentIdAndProfessorId(studentId, professorId);
-        
-        Map<String, Object> response = new HashMap<>();
-        
-        if (existingNotification.isPresent()) {
-            // Remove notification
-            notificationRepository.delete(existingNotification.get());
-            response.put("added", false);
-            response.put("message", "Notification removed");
-        } else {
-            // Add notification
-            Notification notification = new Notification();
-            notification.setStudent(student);
-            notification.setProfessor(professor);
-            notification.setNotificationSetAt(LocalDateTime.now());
-            notification.setNotified(false);
-            notificationRepository.save(notification);
+        try {
+            Optional<User> studentOpt = userRepository.findById(studentId);
+            if (!studentOpt.isPresent() || studentOpt.get().getRole() != Role.STUDENT) {
+                return ResponseEntity.badRequest().body("Invalid student ID");
+            }
             
-            response.put("added", true);
-            response.put("message", "Notification set");
+            Optional<Professor> professorOpt = professorRepository.findById(professorId);
+            if (!professorOpt.isPresent()) {
+                return ResponseEntity.badRequest().body("Invalid professor ID");
+            }
+            
+            User student = studentOpt.get();
+            Professor professor = professorOpt.get();
+            
+            // Check if notification already exists
+            Optional<Notification> existingNotification = notificationRepository.findByStudent_IdAndProfessor_Id(studentId, professorId);
+            
+            Map<String, Object> response = new HashMap<>();
+            
+            if (existingNotification.isPresent()) {
+                // Remove notification
+                notificationRepository.delete(existingNotification.get());
+                response.put("added", false);
+                response.put("message", "Notification removed");
+            } else {
+                // Add notification
+                Notification notification = new Notification();
+                notification.setStudent(student);
+                notification.setProfessor(professor);
+                notification.setNotificationSetAt(LocalDateTime.now());
+                notification.setNotified(false);
+                notificationRepository.save(notification);
+                
+                response.put("added", true);
+                response.put("message", "Notification set");
+            }
+            
+            return ResponseEntity.ok(response);
+        } catch (Exception e) {
+            e.printStackTrace(); // This will help us see the error in the backend logs
+            Map<String, Object> errorResponse = new HashMap<>();
+            errorResponse.put("error", "Server error: " + e.getMessage());
+            errorResponse.put("cause", e.getClass().getSimpleName());
+            return ResponseEntity.status(500).body(errorResponse);
         }
-        
-        return ResponseEntity.ok(response);
     }
 }

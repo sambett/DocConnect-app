@@ -1,0 +1,40 @@
+# Git files
+.git/
+.gitignore
+
+# IDE files
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Documentation
+README*.md
+*.pdf
+DOCKER-README.md
+
+# Environment files (these should be configured per environment)
+.env
+.env.local
+.env.example
+
+# Logs
+*.log
+logs/
+
+# Temporary files
+.tmp/
+*.tmp
+.cache/
+
+# Docker files (no need to include in other Dockerfiles)
+docker-compose*.yml
+
+# Build artifacts from local development
+backend/target/
+frontend/docconnect-app/dist/
+frontend/docconnect-app/node_modules/

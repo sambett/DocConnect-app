@@ -5,6 +5,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import java.time.LocalDateTime;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
 @Entity
 @Table(name = "notifications")
@@ -19,12 +20,12 @@ public class Notification {
     
     @ManyToOne
     @JoinColumn(name = "student_id", nullable = false)
-    @com.fasterxml.jackson.annotation.JsonBackReference("student-notification")
+    @JsonIgnore
     private User student;
     
     @ManyToOne
     @JoinColumn(name = "professor_id", nullable = false)
-    @com.fasterxml.jackson.annotation.JsonBackReference("professor-notification")
+    @JsonIgnore
     private Professor professor;
     
     @Column(name = "notification_set_at", nullable = false)
@@ -37,5 +38,16 @@ public class Notification {
     protected void onCreate() {
         notificationSetAt = LocalDateTime.now();
         notified = false;
+    }
+    
+    // Methods to get just the IDs for JSON serialization
+    @Transient
+    public Long getStudentId() {
+        return student != null ? student.getId() : null;
+    }
+    
+    @Transient
+    public Long getProfessorId() {
+        return professor != null ? professor.getId() : null;
     }
 }

@@ -11,8 +11,12 @@ import java.util.Optional;
 
 @Repository
 public interface FavoriteRepository extends JpaRepository<Favorite, Long> {
-    List<Favorite> findByStudentId(Long studentId);
-    Optional<Favorite> findByStudentIdAndProfessorId(Long studentId, Long professorId);
+    // Changed method name to match JPA naming convention for nested properties
+    List<Favorite> findByStudent_Id(Long studentId);
+    
+    // Using proper naming convention for nested properties
+    Optional<Favorite> findByStudent_IdAndProfessor_Id(Long studentId, Long professorId);
+    
     List<Favorite> findByStudent(User student);
     boolean existsByStudentAndProfessor(User student, Professor professor);
     Optional<Favorite> findByStudentAndProfessor(User student, Professor professor);
